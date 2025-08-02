@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assignment Grader</title>
-    <!-- Tailwind CSS for styling -->
+    <title>SmartAssignTrack</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Custom Styles -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
         }
         /* Simple transition for smoother UI changes */
         .view {
@@ -36,7 +34,7 @@
         }
         /* Spinner for loading states */
         .spinner {
-            border-top-color: #3b82f6; /* blue-500 */
+            border-top-color: #1e293b; /* slate-800, matching the new theme */
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
@@ -44,128 +42,114 @@
         }
     </style>
 </head>
-<body class="text-slate-800">
+<body>
 
-    <!-- Main Application Container -->
     <div id="app" class="min-h-screen flex flex-col">
 
-        <!-- Header -->
         <header class="bg-white shadow-md sticky top-0 z-20">
             <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
-                <h1 class="text-2xl font-bold text-blue-600">Assignment Grader</h1>
+                <h1 class="text-2xl font-bold text-gray-900">SmartAssignTrack</h1>
                 <div id="user-info" class="hidden items-center space-x-4">
-                    <span id="welcome-message" class="font-medium"></span>
-                    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Logout</button>
+                    <span id="welcome-message" class="font-medium text-slate-700"></span>
+                    <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Logout</button>
                 </div>
             </nav>
         </header>
 
-        <!-- Loading Spinner Overlay -->
-        <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div id="loading-overlay" class="hidden fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
             <div class="spinner h-16 w-16 rounded-full border-4 border-slate-200"></div>
         </div>
 
-        <!-- Notification Area -->
         <div id="notification" class="fixed top-24 right-5 z-40"></div>
 
-        <!-- Main Content Area -->
         <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
 
-            <!-- Login/Register View -->
             <div id="auth-view" class="view max-w-md mx-auto">
                 <div class="bg-white p-8 rounded-xl shadow-lg">
                     <div id="login-form-container">
-                        <h2 class="text-3xl font-bold text-center mb-6">Login</h2>
+                        <h2 class="text-3xl font-bold text-center mb-6 text-gray-900">Login</h2>
                         <form id="login-form">
                             <div class="mb-4">
                                 <label for="login-username" class="block text-slate-700 font-medium mb-2">Username</label>
-                                <input type="text" id="login-username" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <input type="text" id="login-username" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800" required>
                             </div>
                             <div class="mb-6">
                                 <label for="login-password" class="block text-slate-700 font-medium mb-2">Password</label>
-                                <input type="password" id="login-password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <input type="password" id="login-password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800" required>
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Login</button>
+                            <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-4 rounded-lg transition duration-300">Login</button>
                         </form>
-                        <p class="text-center mt-4">Don't have an account? <a href="#" id="show-register-link" class="text-blue-600 hover:underline">Register here</a></p>
+                        <p class="text-center mt-4">Don't have an account? <a href="#" id="show-register-link" class="text-gray-700 hover:underline font-medium">Register here</a></p>
                     </div>
 
                     <div id="register-form-container" class="hidden">
-                        <h2 class="text-3xl font-bold text-center mb-6">Register</h2>
+                        <h2 class="text-3xl font-bold text-center mb-6 text-gray-900">Register</h2>
                         <form id="register-form">
                             <div class="mb-4">
                                 <label for="register-username" class="block text-slate-700 font-medium mb-2">Username</label>
-                                <input type="text" id="register-username" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <input type="text" id="register-username" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800" required>
                             </div>
                             <div class="mb-4">
                                 <label for="register-password" class="block text-slate-700 font-medium mb-2">Password</label>
-                                <input type="password" id="register-password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <input type="password" id="register-password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800" required>
                             </div>
                             <div class="mb-6">
                                 <label for="register-role" class="block text-slate-700 font-medium mb-2">Role</label>
-                                <select id="register-role" class="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <select id="register-role" class="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-800">
                                     <option value="student">Student</option>
                                     <option value="professor">Professor</option>
                                 </select>
                             </div>
-                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Register</button>
+                            <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-4 rounded-lg transition duration-300">Register</button>
                         </form>
-                        <p class="text-center mt-4">Already have an account? <a href="#" id="show-login-link" class="text-blue-600 hover:underline">Login here</a></p>
+                        <p class="text-center mt-4">Already have an account? <a href="#" id="show-login-link" class="text-gray-700 hover:underline font-medium">Login here</a></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Professor View -->
             <div id="professor-view" class="view hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Create Assignment Form -->
                     <div class="lg:col-span-1">
                         <div class="bg-white p-6 rounded-xl shadow-lg">
                             <h3 class="text-2xl font-bold mb-4">Create New Assignment</h3>
                             <form id="create-assignment-form">
                                 <div class="mb-4">
                                     <label for="assignment-title" class="block text-slate-700 font-medium mb-2">Title</label>
-                                    <input type="text" id="assignment-title" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                    <input type="text" id="assignment-title" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800" required>
                                 </div>
                                 <div class="mb-4">
                                     <label for="assignment-description" class="block text-slate-700 font-medium mb-2">Description</label>
-                                    <textarea id="assignment-description" rows="4" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                                    <textarea id="assignment-description" rows="4" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800" required></textarea>
                                 </div>
                                 <div class="mb-4">
                                     <label for="assignment-deadline" class="block text-slate-700 font-medium mb-2">Deadline</label>
-                                    <input type="datetime-local" id="assignment-deadline" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                    <input type="datetime-local" id="assignment-deadline" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800" required>
                                 </div>
                                 <div class="mb-4">
                                     <label for="assignment-keywords" class="block text-slate-700 font-medium mb-2">Keywords (comma-separated)</label>
-                                    <input type="text" id="assignment-keywords" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., analysis, data, model">
+                                    <input type="text" id="assignment-keywords" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-800" placeholder="e.g., analysis, data, model">
                                 </div>
-                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Create Assignment</button>
+                                <button type="submit" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-4 rounded-lg transition duration-300">Create Assignment</button>
                             </form>
                         </div>
                     </div>
-                    <!-- Professor's Assignments List -->
                     <div class="lg:col-span-2">
                         <h3 class="text-2xl font-bold mb-4">Your Assignments</h3>
                         <div id="professor-assignments-list" class="space-y-4">
-                            <!-- Assignments will be dynamically inserted here -->
-                        </div>
+                            </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Student View -->
             <div id="student-view" class="view hidden">
                 <h2 class="text-3xl font-bold mb-6">Available Assignments</h2>
                 <div id="student-assignments-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Assignments will be dynamically inserted here -->
-                </div>
+                    </div>
                  <h2 class="text-3xl font-bold my-6">Your Submissions</h2>
                  <div id="student-submissions-list" class="space-y-4">
-                    <!-- Student's submissions will be dynamically inserted here -->
-                 </div>
+                    </div>
             </div>
             
-            <!-- Modal for Viewing Submissions -->
             <div id="submissions-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-30 flex items-center justify-center p-4">
                 <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
                     <div class="flex justify-between items-center p-4 border-b border-slate-200">
@@ -173,8 +157,7 @@
                         <button id="close-modal-btn" class="text-slate-500 hover:text-red-500 text-3xl">&times;</button>
                     </div>
                     <div id="modal-content" class="p-6 overflow-y-auto">
-                        <!-- Submission details will be dynamically inserted here -->
-                    </div>
+                        </div>
                 </div>
             </div>
 
@@ -244,7 +227,7 @@
          */
         const showNotification = (message, type = 'success') => {
             const notif = document.createElement('div');
-            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
             notif.className = `p-4 rounded-lg text-white shadow-lg mb-2 transform transition-all duration-300 ease-out ${bgColor}`;
             notif.textContent = message;
             document.getElementById('notification').appendChild(notif);
@@ -307,16 +290,15 @@
                     const errorData = await response.json();
                     throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
                 }
-                // Handle responses that might not have a body
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     return await response.json();
                 }
-                return {}; // Return empty object for non-json responses
+                return {};
             } catch (error) {
                 console.error('API Call Error:', error);
                 showNotification(error.message, 'error');
-                throw error; // Re-throw to allow caller to handle it
+                throw error;
             } finally {
                 setLoading(false);
             }
@@ -338,10 +320,8 @@
                 });
                 showNotification('Registration successful! Please log in.');
                 forms.register.reset();
-                authLinks.showLogin.click(); // Switch to login form
-            } catch (error) {
-                // Error notification is already handled by apiCall
-            }
+                authLinks.showLogin.click();
+            } catch (error) {}
         };
 
         const handleLogin = async (e) => {
@@ -349,13 +329,8 @@
             const username = document.getElementById('login-username').value;
             const password = document.getElementById('login-password').value;
             
-            // This is a mock login. The backend uses username/role for auth on each request.
-            // We need to determine the role. We'll try 'professor' first.
             let userRole = null;
             try {
-                // The backend's get_current_user is a dependency, not a login endpoint.
-                // We will simulate a login by fetching assignments for a professor. If it works, role is professor.
-                // This is a workaround due to the backend's auth design. A proper /login endpoint would be better.
                 await apiCall(`/assignments?username=${username}&role=professor`);
                 userRole = 'professor';
             } catch (e) {
@@ -363,7 +338,7 @@
                     await apiCall(`/assignments?username=${username}&role=student`);
                     userRole = 'student';
                 } catch (e2) {
-                     showNotification('Invalid username or password.', 'error');
+                     showNotification('Invalid credentials or role.', 'error');
                      return;
                 }
             }
@@ -426,7 +401,7 @@
                     <p class="text-slate-600 mt-2">${a.description}</p>
                     <p class="text-sm text-slate-500 mt-2"><strong>Deadline:</strong> ${new Date(a.deadline).toLocaleString()}</p>
                     <p class="text-sm text-slate-500"><strong>Keywords:</strong> ${a.keywords || 'None'}</p>
-                    <button data-assignment-id="${a.id}" data-assignment-title="${a.title}" class="view-submissions-btn mt-4 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">View Submissions</button>
+                    <button data-assignment-id="${a.id}" data-assignment-title="${a.title}" class="view-submissions-btn mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-lg transition duration-300">View Submissions</button>
                 `;
                 containers.profAssignments.appendChild(card);
             });
@@ -439,7 +414,7 @@
             const assignmentTitle = e.target.dataset.assignmentTitle;
 
             modal.title.textContent = `Submissions for: ${assignmentTitle}`;
-            modal.content.innerHTML = ''; // Clear previous content
+            modal.content.innerHTML = '';
             modal.container.classList.remove('hidden');
 
             try {
@@ -474,8 +449,8 @@
                         <td class="p-3 border-b border-slate-200">${s.student_id}</td>
                         <td class="p-3 border-b border-slate-200">${new Date(s.submission_time).toLocaleString()}</td>
                         <td class="p-3 border-b border-slate-200">${s.quality_score.toFixed(2)}%</td>
-                        <td class="p-3 border-b border-slate-200 text-${s.plagiarism_score > 50 ? 'red' : 'green'}-600 font-medium">${s.plagiarism_score.toFixed(2)}%</td>
-                        <td class="p-3 border-b border-slate-200 font-bold text-blue-600">${s.grade.toFixed(2)}</td>
+                        <td class="p-3 border-b border-slate-200 text-${s.plagiarism_score > 50 ? 'red-600' : 'green-600'} font-medium">${s.plagiarism_score.toFixed(2)}%</td>
+                        <td class="p-3 border-b border-slate-200 font-bold text-gray-800">${s.grade.toFixed(2)}</td>
                     </tr>
                 `).join('')}
                 </tbody>
@@ -521,15 +496,12 @@
         };
         
         const fetchStudentSubmissions = async () => {
-            // To get all submissions for a student, we first need all assignments, then query each one.
-            // This is inefficient but required by the current backend structure.
             try {
                 const assignments = await apiCall(`/assignments?username=${currentUser.username}&role=${currentUser.role}`);
                 let allSubmissions = [];
                 for (const assignment of assignments) {
                     const submissions = await apiCall(`/submissions/${assignment.id}?username=${currentUser.username}&role=${currentUser.role}`);
                     if (submissions.length > 0) {
-                        // Add assignment title to each submission for context
                         submissions.forEach(s => s.assignment_title = assignment.title);
                         allSubmissions.push(...submissions);
                     }
@@ -544,6 +516,7 @@
                 containers.studentSubmissions.innerHTML = '<p class="text-slate-500">You have not made any submissions yet.</p>';
                 return;
             }
+            submissions.sort((a, b) => new Date(b.submission_time) - new Date(a.submission_time)); // Sort by most recent
             submissions.forEach(s => {
                 const card = document.createElement('div');
                 card.className = 'bg-white p-5 rounded-xl shadow-md grid grid-cols-1 md:grid-cols-5 gap-4 items-center';
@@ -555,11 +528,11 @@
                     </div>
                     <div>
                         <p class="text-sm text-slate-500">Plagiarism</p>
-                        <p class="font-medium text-${s.plagiarism_score > 50 ? 'red' : 'green'}-600">${s.plagiarism_score.toFixed(2)}%</p>
+                        <p class="font-medium text-${s.plagiarism_score > 50 ? 'red-600' : 'green-600'}">${s.plagiarism_score.toFixed(2)}%</p>
                     </div>
                     <div>
                         <p class="text-sm text-slate-500">Final Grade</p>
-                        <p class="font-bold text-2xl text-blue-600">${s.grade.toFixed(2)}</p>
+                        <p class="font-bold text-2xl text-gray-900">${s.grade.toFixed(2)}</p>
                     </div>
                 `;
                 containers.studentSubmissions.appendChild(card);
@@ -590,15 +563,12 @@
                 });
                 showNotification(`Submission successful! Final Grade: ${result.grade.toFixed(2)}`, 'success');
                 form.reset();
-                fetchStudentSubmissions(); // Refresh the submissions list
-            } catch (error) {
-                // Error is handled by apiCall
-            }
+                fetchStudentSubmissions();
+            } catch (error) {}
         };
 
         // --- EVENT LISTENERS ---
         const setupEventListeners = () => {
-            // Auth form switching
             authLinks.showRegister.addEventListener('click', (e) => {
                 e.preventDefault();
                 containers.login.classList.add('hidden');
@@ -610,15 +580,12 @@
                 containers.login.classList.remove('hidden');
             });
 
-            // Form submissions
             forms.login.addEventListener('submit', handleLogin);
             forms.register.addEventListener('submit', handleRegister);
             forms.createAssignment.addEventListener('submit', handleCreateAssignment);
             
-            // Logout
             userInfo.logoutBtn.addEventListener('click', handleLogout);
 
-            // Modal closing
             modal.closeBtn.addEventListener('click', () => modal.container.classList.add('hidden'));
             modal.container.addEventListener('click', (e) => {
                 if (e.target === modal.container) {
@@ -626,7 +593,6 @@
                 }
             });
 
-            // Event delegation for dynamic content
             document.body.addEventListener('click', handleViewSubmissions);
             document.body.addEventListener('submit', handleSubmitAssignment);
         };
