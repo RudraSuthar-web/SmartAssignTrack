@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+PyPDF2
+nltk
+scikit-learn
+pydantic
+python-multipart
+pytesseract
+pdf2image
+sentence-transformers
+torch
+fuzzywuzzy
+python-Levenshtein  

@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Grader</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        /* Simple transition for smoother UI changes */
+        .view {
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; /* slate-100 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* slate-400 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* slate-500 */
+        }
+        /* Spinner for loading states */
+        .spinner {
+            border-top-color: #3b82f6; /* blue-500 */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Main Application Container -->
+    <div id="app" class="min-h-screen flex flex-col">
+
+        <!-- Header -->
+        <header class="bg-white shadow-md sticky top-0 z-20">
+            <nav class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
+                <h1 class="text-2xl font-bold text-blue-600">Assignment Grader</h1>
+                <div id="user-info" class="hidden items-center space-x-4">
+                    <span id="welcome-message" class="font-medium"></span>
+                    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Logout</button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Loading Spinner Overlay -->
+        <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div class="spinner h-16 w-16 rounded-full border-4 border-slate-200"></div>
+        </div>
+
+        <!-- Notification Area -->
+        <div id="notification" class="fixed top-24 right-5 z-40"></div>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow container mx-auto p-4 sm:p-6 lg:p-8">
+
+            <!-- Login/Register View -->
+            <div id="auth-view" class="view max-w-md mx-auto">
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <div id="login-form-container">
+                        <h2 class="text-3xl font-bold text-center mb-6">Login</h2>
+                        <form id="login-form">
+                            <div class="mb-4">
+                                <label for="login-username" class="block text-slate-700 font-medium mb-2">Username</label>
+                                <input type="text" id="login-username" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div class="mb-6">
+                                <label for="login-password" class="block text-slate-700 font-medium mb-2">Password</label>
+                                <input type="password" id="login-password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Login</button>
+                        </form>
+                        <p class="text-center mt-4">Don't have an account? <a href="#" id="show-register-link" class="text-blue-600 hover:underline">Register here</a></p>
+                    </div>
+
+                    <div id="register-form-container" class="hidden">
+                        <h2 class="text-3xl font-bold text-center mb-6">Register</h2>
+                        <form id="register-form">
+                            <div class="mb-4">
+                                <label for="register-username" class="block text-slate-700 font-medium mb-2">Username</label>
+                                <input type="text" id="register-username" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="register-password" class="block text-slate-700 font-medium mb-2">Password</label>
+                                <input type="password" id="register-password" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div class="mb-6">
+                                <label for="register-role" class="block text-slate-700 font-medium mb-2">Role</label>
+                                <select id="register-role" class="w-full px-4 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="student">Student</option>
+                                    <option value="professor">Professor</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Register</button>
+                        </form>
+                        <p class="text-center mt-4">Already have an account? <a href="#" id="show-login-link" class="text-blue-600 hover:underline">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professor View -->
+            <div id="professor-view" class="view hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Create Assignment Form -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h3 class="text-2xl font-bold mb-4">Create New Assignment</h3>
+                            <form id="create-assignment-form">
+                                <div class="mb-4">
+                                    <label for="assignment-title" class="block text-slate-700 font-medium mb-2">Title</label>
+                                    <input type="text" id="assignment-title" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="assignment-description" class="block text-slate-700 font-medium mb-2">Description</label>
+                                    <textarea id="assignment-description" rows="4" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="assignment-deadline" class="block text-slate-700 font-medium mb-2">Deadline</label>
+                                    <input type="datetime-local" id="assignment-deadline" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="assignment-keywords" class="block text-slate-700 font-medium mb-2">Keywords (comma-separated)</label>
+                                    <input type="text" id="assignment-keywords" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., analysis, data, model">
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Create Assignment</button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Professor's Assignments List -->
+                    <div class="lg:col-span-2">
+                        <h3 class="text-2xl font-bold mb-4">Your Assignments</h3>
+                        <div id="professor-assignments-list" class="space-y-4">
+                            <!-- Assignments will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student View -->
+            <div id="student-view" class="view hidden">
+                <h2 class="text-3xl font-bold mb-6">Available Assignments</h2>
+                <div id="student-assignments-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Assignments will be dynamically inserted here -->
+                </div>
+                 <h2 class="text-3xl font-bold my-6">Your Submissions</h2>
+                 <div id="student-submissions-list" class="space-y-4">
+                    <!-- Student's submissions will be dynamically inserted here -->
+                 </div>
+            </div>
+            
+            <!-- Modal for Viewing Submissions -->
+            <div id="submissions-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-30 flex items-center justify-center p-4">
+                <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+                    <div class="flex justify-between items-center p-4 border-b border-slate-200">
+                        <h4 id="modal-title" class="text-2xl font-bold">Submissions</h4>
+                        <button id="close-modal-btn" class="text-slate-500 hover:text-red-500 text-3xl">&times;</button>
+                    </div>
+                    <div id="modal-content" class="p-6 overflow-y-auto">
+                        <!-- Submission details will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIGURATION ---
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+
+        // --- STATE MANAGEMENT ---
+        let currentUser = {
+            username: null,
+            role: null,
+        };
+
+        // --- DOM ELEMENT REFERENCES ---
+        const views = {
+            auth: document.getElementById('auth-view'),
+            professor: document.getElementById('professor-view'),
+            student: document.getElementById('student-view'),
+        };
+        const forms = {
+            login: document.getElementById('login-form'),
+            register: document.getElementById('register-form'),
+            createAssignment: document.getElementById('create-assignment-form'),
+        };
+        const containers = {
+            login: document.getElementById('login-form-container'),
+            register: document.getElementById('register-form-container'),
+            profAssignments: document.getElementById('professor-assignments-list'),
+            studentAssignments: document.getElementById('student-assignments-list'),
+            studentSubmissions: document.getElementById('student-submissions-list'),
+        };
+        const authLinks = {
+            showRegister: document.getElementById('show-register-link'),
+            showLogin: document.getElementById('show-login-link'),
+        };
+        const userInfo = {
+            container: document.getElementById('user-info'),
+            welcomeMsg: document.getElementById('welcome-message'),
+            logoutBtn: document.getElementById('logout-btn'),
+        };
+        const modal = {
+            container: document.getElementById('submissions-modal'),
+            title: document.getElementById('modal-title'),
+            content: document.getElementById('modal-content'),
+            closeBtn: document.getElementById('close-modal-btn'),
+        };
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        // --- UTILITY & HELPER FUNCTIONS ---
+
+        /**
+         * Shows a loading spinner.
+         * @param {boolean} isLoading - True to show, false to hide.
+         */
+        const setLoading = (isLoading) => {
+            loadingOverlay.classList.toggle('hidden', !isLoading);
+        };
+
+        /**
+         * Displays a notification message.
+         * @param {string} message - The message to display.
+         * @param {string} type - 'success' or 'error'.
+         */
+        const showNotification = (message, type = 'success') => {
+            const notif = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            notif.className = `p-4 rounded-lg text-white shadow-lg mb-2 transform transition-all duration-300 ease-out ${bgColor}`;
+            notif.textContent = message;
+            document.getElementById('notification').appendChild(notif);
+
+            // Fade in
+            setTimeout(() => notif.classList.add('opacity-100', 'translate-x-0'), 10);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                notif.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => notif.remove(), 300);
+            }, 5000);
+        };
+        
+        /**
+         * Switches the visible view (e.g., from auth to dashboard).
+         * @param {string} viewName - The key of the view to show ('auth', 'professor', 'student').
+         */
+        const switchView = (viewName) => {
+            Object.values(views).forEach(view => view.classList.add('hidden'));
+            if (views[viewName]) {
+                views[viewName].classList.remove('hidden');
+            }
+        };
+
+        /**
+         * Updates the UI based on the current user's login state and role.
+         */
+        const updateUIForUser = () => {
+            if (currentUser.username && currentUser.role) {
+                userInfo.container.classList.remove('hidden');
+                userInfo.welcomeMsg.textContent = `Welcome, ${currentUser.username} (${currentUser.role})`;
+                if (currentUser.role === 'professor') {
+                    switchView('professor');
+                    fetchProfessorAssignments();
+                } else {
+                    switchView('student');
+                    fetchStudentAssignments();
+                    fetchStudentSubmissions();
+                }
+            } else {
+                userInfo.container.classList.add('hidden');
+                switchView('auth');
+            }
+        };
+
+        // --- API CALLS ---
+
+        /**
+         * Generic fetch wrapper for API calls.
+         * @param {string} endpoint - The API endpoint (e.g., '/assignments').
+         * @param {object} options - The options for the fetch call (method, headers, body).
+         * @returns {Promise<any>} - The JSON response from the API.
+         */
+        const apiCall = async (endpoint, options = {}) => {
+            setLoading(true);
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+                }
+                // Handle responses that might not have a body
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    return await response.json();
+                }
+                return {}; // Return empty object for non-json responses
+            } catch (error) {
+                console.error('API Call Error:', error);
+                showNotification(error.message, 'error');
+                throw error; // Re-throw to allow caller to handle it
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // --- AUTHENTICATION LOGIC ---
+
+        const handleRegister = async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const role = document.getElementById('register-role').value;
+
+            try {
+                await apiCall('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role }),
+                });
+                showNotification('Registration successful! Please log in.');
+                forms.register.reset();
+                authLinks.showLogin.click(); // Switch to login form
+            } catch (error) {
+                // Error notification is already handled by apiCall
+            }
+        };
+
+        const handleLogin = async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            
+            // This is a mock login. The backend uses username/role for auth on each request.
+            // We need to determine the role. We'll try 'professor' first.
+            let userRole = null;
+            try {
+                // The backend's get_current_user is a dependency, not a login endpoint.
+                // We will simulate a login by fetching assignments for a professor. If it works, role is professor.
+                // This is a workaround due to the backend's auth design. A proper /login endpoint would be better.
+                await apiCall(`/assignments?username=${username}&role=professor`);
+                userRole = 'professor';
+            } catch (e) {
+                try {
+                    await apiCall(`/assignments?username=${username}&role=student`);
+                    userRole = 'student';
+                } catch (e2) {
+                     showNotification('Invalid username or password.', 'error');
+                     return;
+                }
+            }
+
+            if (userRole) {
+                currentUser.username = username;
+                currentUser.role = userRole;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showNotification('Login successful!');
+                updateUIForUser();
+            }
+        };
+
+        const handleLogout = () => {
+            currentUser = { username: null, role: null };
+            localStorage.removeItem('currentUser');
+            updateUIForUser();
+            showNotification('You have been logged out.');
+        };
+
+        // --- PROFESSOR LOGIC ---
+
+        const handleCreateAssignment = async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('assignment-title').value;
+            const description = document.getElementById('assignment-description').value;
+            const deadline = document.getElementById('assignment-deadline').value;
+            const keywords = document.getElementById('assignment-keywords').value;
+
+            try {
+                await apiCall(`/assignments?username=${currentUser.username}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description, deadline, keywords }),
+                });
+                showNotification('Assignment created successfully!');
+                forms.createAssignment.reset();
+                fetchProfessorAssignments();
+            } catch (error) {}
+        };
+
+        const fetchProfessorAssignments = async () => {
+            try {
+                const assignments = await apiCall(`/assignments?username=${currentUser.username}&role=${currentUser.role}`);
+                renderProfessorAssignments(assignments);
+            } catch (error) {}
+        };
+        
+        const renderProfessorAssignments = (assignments) => {
+            containers.profAssignments.innerHTML = '';
+            if (assignments.length === 0) {
+                containers.profAssignments.innerHTML = '<p class="text-slate-500">You have not created any assignments yet.</p>';
+                return;
+            }
+            assignments.forEach(a => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-xl shadow-md';
+                card.innerHTML = `
+                    <h4 class="text-xl font-bold">${a.title}</h4>
+                    <p class="text-slate-600 mt-2">${a.description}</p>
+                    <p class="text-sm text-slate-500 mt-2"><strong>Deadline:</strong> ${new Date(a.deadline).toLocaleString()}</p>
+                    <p class="text-sm text-slate-500"><strong>Keywords:</strong> ${a.keywords || 'None'}</p>
+                    <button data-assignment-id="${a.id}" data-assignment-title="${a.title}" class="view-submissions-btn mt-4 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">View Submissions</button>
+                `;
+                containers.profAssignments.appendChild(card);
+            });
+        };
+
+        const handleViewSubmissions = async (e) => {
+            if (!e.target.classList.contains('view-submissions-btn')) return;
+            
+            const assignmentId = e.target.dataset.assignmentId;
+            const assignmentTitle = e.target.dataset.assignmentTitle;
+
+            modal.title.textContent = `Submissions for: ${assignmentTitle}`;
+            modal.content.innerHTML = ''; // Clear previous content
+            modal.container.classList.remove('hidden');
+
+            try {
+                const submissions = await apiCall(`/submissions/${assignmentId}?username=${currentUser.username}&role=${currentUser.role}`);
+                renderSubmissionsInModal(submissions);
+            } catch (error) {
+                modal.content.innerHTML = '<p class="text-red-500">Could not load submissions.</p>';
+            }
+        };
+
+        const renderSubmissionsInModal = (submissions) => {
+            if (submissions.length === 0) {
+                modal.content.innerHTML = '<p class="text-slate-500 text-center">No submissions for this assignment yet.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.className = 'w-full text-left border-collapse';
+            table.innerHTML = `
+                <thead>
+                    <tr class="bg-slate-100">
+                        <th class="p-3 font-bold uppercase text-slate-600 text-sm border-b border-slate-200">Student ID</th>
+                        <th class="p-3 font-bold uppercase text-slate-600 text-sm border-b border-slate-200">Submission Time</th>
+                        <th class="p-3 font-bold uppercase text-slate-600 text-sm border-b border-slate-200">Quality Score</th>
+                        <th class="p-3 font-bold uppercase text-slate-600 text-sm border-b border-slate-200">Plagiarism</th>
+                        <th class="p-3 font-bold uppercase text-slate-600 text-sm border-b border-slate-200">Final Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                ${submissions.map(s => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-3 border-b border-slate-200">${s.student_id}</td>
+                        <td class="p-3 border-b border-slate-200">${new Date(s.submission_time).toLocaleString()}</td>
+                        <td class="p-3 border-b border-slate-200">${s.quality_score.toFixed(2)}%</td>
+                        <td class="p-3 border-b border-slate-200 text-${s.plagiarism_score > 50 ? 'red' : 'green'}-600 font-medium">${s.plagiarism_score.toFixed(2)}%</td>
+                        <td class="p-3 border-b border-slate-200 font-bold text-blue-600">${s.grade.toFixed(2)}</td>
+                    </tr>
+                `).join('')}
+                </tbody>
+            `;
+            modal.content.appendChild(table);
+        };
+
+
+        // --- STUDENT LOGIC ---
+
+        const fetchStudentAssignments = async () => {
+            try {
+                const assignments = await apiCall(`/assignments?username=${currentUser.username}&role=${currentUser.role}`);
+                renderStudentAssignments(assignments);
+            } catch (error) {}
+        };
+
+        const renderStudentAssignments = (assignments) => {
+            containers.studentAssignments.innerHTML = '';
+            if (assignments.length === 0) {
+                containers.studentAssignments.innerHTML = '<p class="text-slate-500 md:col-span-2 lg:col-span-3">No assignments available at the moment.</p>';
+                return;
+            }
+            assignments.forEach(a => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-xl shadow-lg flex flex-col';
+                card.innerHTML = `
+                    <div class="flex-grow">
+                        <h4 class="text-xl font-bold">${a.title}</h4>
+                        <p class="text-slate-600 mt-2">${a.description}</p>
+                        <p class="text-sm text-red-600 mt-2"><strong>Deadline:</strong> ${new Date(a.deadline).toLocaleString()}</p>
+                        <p class="text-sm text-slate-500"><strong>Keywords:</strong> ${a.keywords || 'None'}</p>
+                    </div>
+                    <form class="submit-assignment-form mt-4">
+                        <input type="hidden" name="assignment-id" value="${a.id}">
+                        <label class="block mb-2 text-sm font-medium text-slate-900" for="file_input_${a.id}">Upload PDF</label>
+                        <input class="block w-full text-sm text-slate-900 border border-slate-300 rounded-lg cursor-pointer bg-slate-50 focus:outline-none" id="file_input_${a.id}" type="file" accept=".pdf" required>
+                        <button type="submit" class="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Submit</button>
+                    </form>
+                `;
+                containers.studentAssignments.appendChild(card);
+            });
+        };
+        
+        const fetchStudentSubmissions = async () => {
+            // To get all submissions for a student, we first need all assignments, then query each one.
+            // This is inefficient but required by the current backend structure.
+            try {
+                const assignments = await apiCall(`/assignments?username=${currentUser.username}&role=${currentUser.role}`);
+                let allSubmissions = [];
+                for (const assignment of assignments) {
+                    const submissions = await apiCall(`/submissions/${assignment.id}?username=${currentUser.username}&role=${currentUser.role}`);
+                    if (submissions.length > 0) {
+                        // Add assignment title to each submission for context
+                        submissions.forEach(s => s.assignment_title = assignment.title);
+                        allSubmissions.push(...submissions);
+                    }
+                }
+                renderStudentSubmissions(allSubmissions);
+            } catch (error) {}
+        };
+
+        const renderStudentSubmissions = (submissions) => {
+            containers.studentSubmissions.innerHTML = '';
+            if (submissions.length === 0) {
+                containers.studentSubmissions.innerHTML = '<p class="text-slate-500">You have not made any submissions yet.</p>';
+                return;
+            }
+            submissions.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-xl shadow-md grid grid-cols-1 md:grid-cols-5 gap-4 items-center';
+                card.innerHTML = `
+                    <h4 class="text-lg font-bold md:col-span-2">${s.assignment_title}</h4>
+                    <div>
+                        <p class="text-sm text-slate-500">Quality Score</p>
+                        <p class="font-medium">${s.quality_score.toFixed(2)}%</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500">Plagiarism</p>
+                        <p class="font-medium text-${s.plagiarism_score > 50 ? 'red' : 'green'}-600">${s.plagiarism_score.toFixed(2)}%</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500">Final Grade</p>
+                        <p class="font-bold text-2xl text-blue-600">${s.grade.toFixed(2)}</p>
+                    </div>
+                `;
+                containers.studentSubmissions.appendChild(card);
+            });
+        };
+
+        const handleSubmitAssignment = async (e) => {
+            e.preventDefault();
+            if (!e.target.classList.contains('submit-assignment-form')) return;
+
+            const form = e.target;
+            const assignmentId = form.querySelector('input[name="assignment-id"]').value;
+            const fileInput = form.querySelector('input[type="file"]');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showNotification('Please select a file to submit.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const result = await apiCall(`/submissions/${assignmentId}?username=${currentUser.username}`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                showNotification(`Submission successful! Final Grade: ${result.grade.toFixed(2)}`, 'success');
+                form.reset();
+                fetchStudentSubmissions(); // Refresh the submissions list
+            } catch (error) {
+                // Error is handled by apiCall
+            }
+        };
+
+        // --- EVENT LISTENERS ---
+        const setupEventListeners = () => {
+            // Auth form switching
+            authLinks.showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                containers.login.classList.add('hidden');
+                containers.register.classList.remove('hidden');
+            });
+            authLinks.showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                containers.register.classList.add('hidden');
+                containers.login.classList.remove('hidden');
+            });
+
+            // Form submissions
+            forms.login.addEventListener('submit', handleLogin);
+            forms.register.addEventListener('submit', handleRegister);
+            forms.createAssignment.addEventListener('submit', handleCreateAssignment);
+            
+            // Logout
+            userInfo.logoutBtn.addEventListener('click', handleLogout);
+
+            // Modal closing
+            modal.closeBtn.addEventListener('click', () => modal.container.classList.add('hidden'));
+            modal.container.addEventListener('click', (e) => {
+                if (e.target === modal.container) {
+                    modal.container.classList.add('hidden');
+                }
+            });
+
+            // Event delegation for dynamic content
+            document.body.addEventListener('click', handleViewSubmissions);
+            document.body.addEventListener('submit', handleSubmitAssignment);
+        };
+
+        // --- INITIALIZATION ---
+        const init = () => {
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+            }
+            setupEventListeners();
+            updateUIForUser();
+        };
+
+        init();
+    });
+    </script>
+</body>
+</html>
